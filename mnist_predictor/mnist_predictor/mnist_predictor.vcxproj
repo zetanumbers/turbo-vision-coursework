@@ -43,7 +43,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;MNISTPREDICTOR_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(PYTHON_INCLUDE);$(BOOST_INCLUDE);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PYTHON_ROOT)\include;$(BOOST_INCLUDE);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -52,19 +52,26 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>$(PYTHON_LIBRARIES);$(BOOST_LIBRARIES);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(PYTHON_ROOT)\libs;$(BOOST_LIBRARIES);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent />
+    <PostBuildEvent />
     <PostBuildEvent>
-      <Command>copy $(BOOST_LIBRARIES)\boost_python38-vc142-mt-x64-1_73.dll $(OutDir)boost_python38-vc142-mt-x64-1_73.dll /y</Command>
+      <Command>copy $(ProjectDir)libmnist_predictor.h $(OutDir)mnist_predictor.h
+$(FPC_DIR)\h2pas -D -c -l $(TargetFileName) -S $(OutDir)mnist_predictor.h
+$(FPC_DIR)\fpc $(OutDir)DIGITS_PREDICTOR.PAS -Px86_64 -Mobjfpc -g -gl</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>copy $(ProjectDir)mnist_predictor.h $(OutDir)mnist_predictor.h</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\mnist_predictor.h" />
-  </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\mnist_predictor.cpp" />
     <ClCompile Include="dllmain.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="libmnist_predictor.h" />
+    <ClInclude Include="mnist_predictor.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -7,5 +7,12 @@
 *.iobj
 *.ipdb
 *.pdb
+*.ppu
+*.a
+*.res
+*.ilk
+/mnist_predictor.pp
+/mnist_predictor.h
 
+build
 Release_x64
