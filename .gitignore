@@ -1,0 +1,11 @@
+.vs
+*.exe
+*.o
+*.dll
+*.lib
+*.exp
+*.iobj
+*.ipdb
+*.pdb
+
+Release_x64
