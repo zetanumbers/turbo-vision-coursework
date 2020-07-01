@@ -59,7 +59,7 @@
     <PostBuildEvent>
       <Command>copy $(ProjectDir)libmnist_predictor.h $(OutDir)mnist_predictor.h
 $(FPC_DIR)\h2pas -D -c -l $(TargetFileName) -S $(OutDir)mnist_predictor.h
-$(FPC_DIR)\fpc $(OutDir)DIGITS_PREDICTOR.PAS -Px86_64 -Mobjfpc -g -gl</Command>
+$(FPC_DIR)\fpc $(OutDir)mnist_predictor_app.pas -Px86_64 -Mobjfpc -gm</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>copy $(ProjectDir)mnist_predictor.h $(OutDir)mnist_predictor.h</Command>

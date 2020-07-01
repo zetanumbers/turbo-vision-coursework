@@ -7,7 +7,7 @@
 
 {************************************************}
 
-program DIGITS_PREDICTOR;
+program mnist_predictor_app;
 
 uses
   Objects,
@@ -26,6 +26,16 @@ const
 
   cmClearCanvas  = 102;
   CanvasCommands = [cmClearCanvas];
+
+  BrushLoX = -2;
+  BrushLoY = -2;
+  BrushHiX = 1;
+  BrushHiY = 1;
+  BrushMask: array[BrushLoX..BrushHiX, BrushLoY..BrushHiY] of Byte =
+    ((96 , 255, 255, 96 ), 
+     (255, 255, 255, 255), 
+     (255, 255, 255, 255), 
+     (96 , 255, 255, 96 ));
 type
   TMyApp = object(TApplication)
     WinCount: integer;
@@ -34,6 +44,7 @@ type
     procedure InitMenuBar; virtual;
     procedure InitStatusLine; virtual;
     procedure NewWindow;
+    function GetPalette: PPalette; virtual;
   end;
 
   PDemoWindow = ^TDemoWindow;
@@ -54,26 +65,32 @@ type
     procedure RegisterPresses(var Event: TEvent);
     procedure RegisterMove(var Event: TEvent);
     procedure SetState(AState: word; Enable: boolean); virtual;
+    function GetPalette: PPalette; virtual;
   end;
 
   function Clamp(val, min, max: longint): longint;
   begin
     if val < min then
-      Result := min
+      Clamp := min
     else if val > max then
-      Result := max
+      Clamp := max
     else
-      Result := val;
+      Clamp := val;
+  end;
+
+  function InRange(val, min, max: longint): Boolean;
+  begin
+    InRange := (min < val) and (val < max);
   end;
 
   function SaturatedAdd(lhs, rhs: byte): byte;
   begin
-    Result := Clamp(longint(lhs) + longint(rhs), 0, 255);
+    SaturatedAdd := Clamp(longint(lhs) + longint(rhs), 0, 255);
   end;
 
   function SaturatedSub(lhs, rhs: byte): byte;
   begin
-    Result := Clamp(longint(lhs) - longint(rhs), 0, 255);
+    SaturatedSub := Clamp(longint(lhs) - longint(rhs), 0, 255);
   end;
 
   { TDemoWindow }
@@ -86,7 +103,7 @@ type
 
     LeftButtonPressed := False;
     RightButtonPressed := False;
-    PredictedLabel := 0;
+    PredictedLabel := 10;
     ClearCanvas;
   end;
 
@@ -102,6 +119,14 @@ type
     DrawCanvas;
     // DrawDebugInfo;
   end;
+
+  function TDemoWindow.GetPalette: PPalette;
+  const
+    CDemoWindow = #9#8#10#11#12#13#14#15;
+    P: string[Length(CDemoWindow)] = CDemoWindow;
+  begin
+    GetPalette := @P;
+  end;  
 
   procedure TDemoWindow.DrawDebugInfo;
   var
@@ -126,11 +151,6 @@ type
   end;
 
   procedure TDemoWindow.UpdateCanvas;
-  const
-    BrushMask: array[-1..1, -1..1] of byte =
-      ((16, 63, 16),
-      (63, 255, 63),
-      (16, 63, 16));
   var
     Pos, OffsetPos: TPoint;
     OffsetX, OffsetY: integer;
@@ -139,25 +159,27 @@ type
     if (Pos.X in [0 .. MnistImageShapeX - 1]) and
       (Pos.Y in [0 .. MnistImageShapeY - 1]) then
       if LeftButtonPressed then
-        for OffsetY := -1 to 1 do
-          for OffsetX := -1 to 1 do
+        for OffsetY := BrushLoY to BrushHiY do
+          for OffsetX := BrushLoX to BrushHiX do
           begin
-            OffsetPos.X := Clamp(Pos.X + OffsetX, 0, MnistImageShapeX - 1);
-            OffsetPos.Y := Clamp(Pos.Y + OffsetY, 0, MnistImageShapeY - 1);
+            OffsetPos.X := Pos.X + OffsetX;
+            OffsetPos.Y := Pos.Y + OffsetY;
+            if InRange(OffsetPos.X, 0, MnistImageShapeX - 1) and InRange(OffsetPos.Y, 0, MnistImageShapeY - 1) then 
             Canvas[OffsetPos.Y, OffsetPos.X] :=
               SaturatedAdd(Canvas[OffsetPos.Y, OffsetPos.X],
               BrushMask[OffsetY, OffsetX]);
           end
       else if RightButtonPressed then
-        for OffsetY := -1 to 1 do
-          for OffsetX := -1 to 1 do
+        for OffsetY := BrushLoY to BrushHiY do
+          for OffsetX := BrushLoX to BrushHiX do
           begin
-            OffsetPos.X := Clamp(Pos.X + OffsetX, 0, MnistImageShapeX - 1);
-            OffsetPos.Y := Clamp(Pos.Y + OffsetY, 0, MnistImageShapeY - 1);
+            OffsetPos.X := Pos.X + OffsetX;
+            OffsetPos.Y := Pos.Y + OffsetY;
+            if InRange(OffsetPos.X, 0, MnistImageShapeX - 1) and InRange(OffsetPos.Y, 0, MnistImageShapeY - 1) then 
             Canvas[OffsetPos.Y, OffsetPos.X] :=
               SaturatedSub(Canvas[OffsetPos.Y, OffsetPos.X],
               BrushMask[OffsetY, OffsetX]);
-          end;
+          end
   end;
 
   procedure TDemoWindow.UpdateLabel;
@@ -176,7 +198,7 @@ type
 
   procedure TDemoWindow.DrawCanvas;
   const
-    levels: array[0..4] of byte = (0, 115, 156, 193, 255);
+    levels: array[0..4] of byte = (0, 113, 176, 227, 255);
     BlockChars: array[0..4] of char = (' ', char($b0), char($b1), char($b2), char($db));
   var
     X, Y, I: integer;
@@ -315,6 +337,15 @@ type
     Window := New(PDemoWindow, Init(R, 'Demo Window', WinCount));
     DeskTop^.Insert(Window);
   end;
+
+  function TMyApp.GetPalette: PPalette;
+  const
+    P: string[Length(CMonochrome)] = CBlackWhite;
+  begin
+    GetPalette := @P;
+  end;  
+
+
 
 var
   MyApp: TMyApp;

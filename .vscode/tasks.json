@@ -16,9 +16,39 @@
                 "${fileBasenameNoExtension}.dll",
                 "${file}"
             ],
-            "problemMatcher": [
-                "$go"
+            "problemMatcher": []
+        },
+        {
+            "label": "build pascal",
+            "type": "shell",
+            "command": "${config:my.fpcdir}\\fpc",
+            "args": [
+                "-Px86_64",
+                "-Mtp",
+                "-gm",
+                "${file}"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "run pascal",
+            "type": "shell",
+            "command": "start",
+            "args": [
+                "${fileBasenameNoExtension}"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "dependsOn": [
+                "build pascal"
             ]
-        }
+        },
     ]
 }
