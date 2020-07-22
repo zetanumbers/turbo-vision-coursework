@@ -11,8 +11,9 @@
 *.a
 *.res
 *.ilk
+*.tmp
 /mnist_predictor.pp
-/mnist_predictor.h
 
 build
-Release_x64
+Release_*
+Debug_*

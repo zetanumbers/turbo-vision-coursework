@@ -12,7 +12,7 @@ extern "C" {
 #endif
 
 MNISTPREDICTOR_API void MnistPredictorInitialize();
-MNISTPREDICTOR_API __int32 MnistPredict(const unsigned char* image);
+MNISTPREDICTOR_API int MnistPredict(const unsigned char* image);
 MNISTPREDICTOR_API void MnistPredictorFinalize();
 
 #ifdef __cplusplus

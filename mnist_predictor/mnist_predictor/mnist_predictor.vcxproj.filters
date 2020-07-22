@@ -18,15 +18,12 @@
     <ClCompile Include="dllmain.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\mnist_predictor.cpp">
+    <ClCompile Include="mnist_predictor.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mnist_predictor.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="libmnist_predictor.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

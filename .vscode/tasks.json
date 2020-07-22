@@ -1,17 +1,14 @@
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
     "version": "2.0.0",
     "tasks": [
         {
             "label": "make_pascal_unit",
             "type": "shell",
-            "command": "${config:my.fpcdir}\\h2pas",
+            "command": "${env:FPC_BIN}\\h2pas",
             "args": [
                 "-D",
-                "-p",
                 "-c",
-                "-s",
+                "-S",
                 "-l",
                 "${fileBasenameNoExtension}.dll",
                 "${file}"
@@ -21,9 +18,10 @@
         {
             "label": "build pascal",
             "type": "shell",
-            "command": "${config:my.fpcdir}\\fpc",
+            "command": "${env:FPC_BIN}\\fpc",
             "args": [
-                "-Px86_64",
+                // "-Px86_64",
+                "-Pi386",
                 "-Mtp",
                 "-gm",
                 "${file}"

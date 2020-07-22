@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 void MnistPredictorInitialize();
-__int32 MnistPredict(const unsigned char* image);
+int MnistPredict(const unsigned char* image);
 void MnistPredictorFinalize();
 
 #ifdef __cplusplus
