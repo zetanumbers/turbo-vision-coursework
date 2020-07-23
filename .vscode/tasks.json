@@ -22,8 +22,8 @@
             "args": [
                 // "-Px86_64",
                 "-Pi386",
+                "-O3",
                 "-Mtp",
-                "-gm",
                 "${file}"
             ],
             "problemMatcher": [],

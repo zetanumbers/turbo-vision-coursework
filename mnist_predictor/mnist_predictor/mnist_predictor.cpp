@@ -55,12 +55,12 @@ struct configuration {
 };
 
 namespace my {
-  struct Program {
+  class Program {
     net::io_context ioc;
     tcp::resolver resolver{ ioc };
     websocket::stream<tcp::socket> ws{ ioc };
 
-    Program() {
+    void connect() {
       auto config = configuration::parse();
       auto const results = resolver.resolve(config.host, config.port);
       auto ep = net::connect(ws.next_layer(), results);
@@ -75,19 +75,22 @@ namespace my {
 
       ws.handshake(config.host, "/");
     }
-
-    ~Program() {
+    void close() {
       ws.close(websocket::close_code::normal);
     }
 
+  public:
+
     int predict(const unsigned char* image) {
+      connect();
       auto buf = net::buffer(static_cast<const void*>(image), 28 * 28);
-      
+
       ws.binary(true);
       ws.write(buf);
 
       beast::flat_buffer buffer;
       ws.read(buffer);
+      close();
       return *static_cast<const char*>(buffer.cdata().data()) - '0';
     }
   };
