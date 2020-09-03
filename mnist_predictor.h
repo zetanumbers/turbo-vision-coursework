@@ -1,16 +1,5 @@
-#ifndef MNISTPREDICTOR_H
-#define MNISTPREDICTOR_H
+long MnistPredict(const unsigned char *image);
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+void MnistPredictorFinalize(void);
 
-void MnistPredictorInitialize();
-int MnistPredict(const unsigned char* image);
-void MnistPredictorFinalize();
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif
+void MnistPredictorInitialize(void);

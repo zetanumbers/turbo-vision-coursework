@@ -2,30 +2,35 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "make_pascal_unit",
+            "label": "h2pas",
             "type": "shell",
-            "command": "${env:FPC_BIN}\\h2pas",
-            "args": [
-                "-D",
-                "-c",
-                "-S",
-                "-l",
-                "${fileBasenameNoExtension}.dll",
-                "${file}"
-            ],
+            "command": "${env:FPC_BIN}/h2pas",
+            "linux": {
+                "args": [
+                    "-D",
+                    "-c",
+                    "-S",
+                    "-l",
+                    "${fileBasenameNoExtension}.so",
+                    "${file}"
+                ],
+            },
+            "windows": {
+                "args": [
+                    "-D",
+                    "-c",
+                    "-S",
+                    "-l",
+                    "${fileBasenameNoExtension}.dll",
+                    "${file}"
+                ],
+            },
             "problemMatcher": []
         },
         {
-            "label": "build pascal",
+            "label": "build app",
             "type": "shell",
-            "command": "${env:FPC_BIN}\\fpc",
-            "args": [
-                // "-Px86_64",
-                "-Pi386",
-                "-O3",
-                "-Mtp",
-                "${file}"
-            ],
+            "command": "./build",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
@@ -33,20 +38,26 @@
             }
         },
         {
-            "label": "run pascal",
+            "label": "build release app",
+            "type": "shell",
+            "command": "./build",
+            "args": [
+                "--release"
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "run release app",
             "type": "shell",
             "command": "start",
             "args": [
-                "${fileBasenameNoExtension}"
+                "build/release/mnist_predictor_app"
             ],
             "problemMatcher": [],
-            "group": {
-                "kind": "test",
-                "isDefault": true
-            },
             "dependsOn": [
-                "build pascal"
+                "build release app"
             ]
-        },
+        }
     ]
 }
