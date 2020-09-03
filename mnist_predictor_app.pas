@@ -156,8 +156,8 @@ type
     OffsetX, OffsetY: integer;
   begin
     Pos := MouseLocalPos;
-    if (Pos.X in [0 .. MnistImageShapeX - 1]) and
-      (Pos.Y in [0 .. MnistImageShapeY - 1]) then
+    if (Cardinal(Pos.X) < MnistImageShapeX) and
+      (Cardinal(Pos.Y) < MnistImageShapeY) then
       if LeftButtonPressed then
         for OffsetY := BrushLoY to BrushHiY do
           for OffsetX := BrushLoX to BrushHiX do
