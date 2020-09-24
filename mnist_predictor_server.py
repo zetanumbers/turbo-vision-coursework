@@ -18,8 +18,9 @@ class MnistTCPHandler(socketserver.BaseRequestHandler):
 
         pred = model.predict(image.reshape((-1, 28, 28, 1)))
         prediction = np.argmax(pred, axis=1)[0]
+        prob = pred[0, prediction]
 
-        self.request.sendall((int(prediction)).to_bytes(4, 'little'))
+        self.request.sendall(bytes(f'{prediction} by {prob:.0%}', 'utf-8'))
         
         print(self.client_address)
         pretty_img_print(image.reshape((28, 28)))

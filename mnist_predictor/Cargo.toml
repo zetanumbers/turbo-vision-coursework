@@ -1,6 +1,6 @@
 [package]
 name = "mnist_predictor"
-version = "0.2.1"
+version = "0.3.0"
 authors = ["zetanumbers <zeta0.114942@gmail.com>"]
 edition = "2018"
 

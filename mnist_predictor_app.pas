@@ -53,7 +53,7 @@ type
     LeftButtonPressed, RightButtonPressed: boolean;
     MouseLocalPos: TPoint;
     Canvas: array[0..MnistImageShapeY - 1, 0..MnistImageShapeX - 1] of byte;
-    PredictedLabel: Integer;
+    PredictedLabel: shortstring;
     constructor Init(Bounds: TRect; WinTitle: string; WindowNo: integer);
     procedure HandleEvent(var Event: TEvent); virtual;
     procedure Draw; virtual;
@@ -103,18 +103,15 @@ type
 
     LeftButtonPressed := False;
     RightButtonPressed := False;
-    PredictedLabel := 10;
+    PredictedLabel := '...';
     ClearCanvas;
   end;
 
   procedure TDemoWindow.Draw;
-  var
-    S: string[3];
   begin
     TWindow.Draw;
 
-    Str(PredictedLabel, S);
-    WriteStr(5, 0, S, $01);
+    WriteStr(5, 0, PredictedLabel, $01);
 
     DrawCanvas;
     // DrawDebugInfo;
@@ -184,7 +181,7 @@ type
 
   procedure TDemoWindow.UpdateLabel;
   begin
-    PredictedLabel := MnistPredict(@Canvas[0, 0]);
+    PredictedLabel := StrPas(MnistPredict(@Canvas[0, 0]));
   end;
 
   procedure TDemoWindow.ClearCanvas;

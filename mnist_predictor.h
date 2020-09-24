@@ -1,1 +1,1 @@
-long MnistPredict(const unsigned char *image);
+const char *MnistPredict(const unsigned char *image);
