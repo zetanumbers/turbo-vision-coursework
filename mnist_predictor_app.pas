@@ -80,7 +80,7 @@ type
 
   function InRange(val, min, max: longint): Boolean;
   begin
-    InRange := (min < val) and (val < max);
+    InRange := (min <= val) and (val <= max);
   end;
 
   function SaturatedAdd(lhs, rhs: byte): byte;
@@ -156,8 +156,8 @@ type
     OffsetX, OffsetY: integer;
   begin
     Pos := MouseLocalPos;
-    if (Pos.X in [0 .. MnistImageShapeX - 1]) and
-      (Pos.Y in [0 .. MnistImageShapeY - 1]) then
+    if (Cardinal(Pos.X) < MnistImageShapeX) and
+      (Cardinal(Pos.Y) < MnistImageShapeY) then
       if LeftButtonPressed then
         for OffsetY := BrushLoY to BrushHiY do
           for OffsetX := BrushLoX to BrushHiX do
@@ -351,9 +351,7 @@ var
   MyApp: TMyApp;
 
 begin
-  MnistPredictorInitialize;
   MyApp.Init;
   MyApp.Run;
   MyApp.Done;
-  MnistPredictorFinalize;
 end.
