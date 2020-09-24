@@ -80,7 +80,7 @@ type
 
   function InRange(val, min, max: longint): Boolean;
   begin
-    InRange := (min < val) and (val < max);
+    InRange := (min <= val) and (val <= max);
   end;
 
   function SaturatedAdd(lhs, rhs: byte): byte;
@@ -351,9 +351,7 @@ var
   MyApp: TMyApp;
 
 begin
-  MnistPredictorInitialize;
   MyApp.Init;
   MyApp.Run;
   MyApp.Done;
-  MnistPredictorFinalize;
 end.

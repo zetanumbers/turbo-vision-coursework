@@ -2,3 +2,4 @@
 /mnist_predictor/target
 /mnist_predictor.pp
 /build
+/.vscode/settings.json
