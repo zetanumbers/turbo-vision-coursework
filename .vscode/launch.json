@@ -5,16 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Current File",
+            "name": "Debug server",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
+            "program": "mnist_predictor_server.py",
+            "console": "internalConsole",
         },
         { // native debugger
             "type": "gdb",
             "request": "launch",
-            "name": "Native Debugger",
+            "name": "Debug application",
             "cwd": "${workspaceRoot}",
             "target": "./build/debug/mnist_predictor_app",
             "terminal": "external",

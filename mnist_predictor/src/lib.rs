@@ -1,3 +1,5 @@
+extern crate tokio;
+
 use std::ffi::CString;
 use std::net::SocketAddr;
 use std::os::raw;
@@ -7,7 +9,7 @@ use std::{ptr, slice};
 use tokio::fs;
 use tokio::net::TcpStream;
 use tokio::prelude::*;
-use tokio::runtime::Runtime;
+use tokio::runtime::{Builder, Runtime};
 use tokio::sync::oneshot::{self, error::TryRecvError};
 
 pub struct Predictor {
@@ -43,8 +45,14 @@ pub unsafe extern "C" fn RecycleResultMessage(s: *mut raw::c_char) {
 
 #[no_mangle]
 pub unsafe extern "C" fn InitializePredictor() -> *mut Predictor {
+    let mut builder = Builder::new();
+    builder
+        .threaded_scheduler()
+        .core_threads(1)
+        .max_threads(16)
+        .enable_io();
     Box::into_raw(Box::new(Predictor {
-        rt: match Runtime::new() {
+        rt: match builder.build() {
             Ok(v) => v,
             Err(_) => return ptr::null_mut(),
         },

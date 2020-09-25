@@ -1,12 +1,3 @@
-{************************************************}
-
- {   Turbo Pascal 6.0                             }
- {   Demo program from the Turbo Vision Guide     }
-
-{   Copyright (c) 1990 by Borland International  }
-
-{************************************************}
-
 program mnist_predictor_app;
 
 uses
@@ -37,8 +28,8 @@ const
      (255, 255, 255, 255), 
      (96 , 255, 255, 96 ));
 type
-  PMyApp = ^TMyApp;
-  TMyApp = object(TApplication)
+  PPredictorApp = ^TPredictorApp;
+  TPredictorApp = object(TApplication)
     WinCount: integer;
     MyPredictor: PPredictor;
     constructor Init;
@@ -51,9 +42,9 @@ type
     function GetPalette: PPalette; virtual;
   end;
 
-  PDemoWindow = ^TDemoWindow;
+  PCanvasWindow = ^TCanvasWindow;
 
-  TDemoWindow = object(TWindow)
+  TCanvasWindow = object(TWindow)
     LocalFuture: PFuturePrediction;
     LeftButtonPressed, RightButtonPressed: boolean;
     MouseLocalPos: TPoint;
@@ -91,16 +82,16 @@ type
 
   function SaturatedAdd(lhs, rhs: byte): byte;
   begin
-    SaturatedAdd := Clamp(longint(lhs) + longint(rhs), 0, 255);
+    SaturatedAdd := Byte(Clamp(longint(lhs) + longint(rhs), 0, 255));
   end;
 
   function SaturatedSub(lhs, rhs: byte): byte;
   begin
-    SaturatedSub := Clamp(longint(lhs) - longint(rhs), 0, 255);
+    SaturatedSub := Byte(Clamp(longint(lhs) - longint(rhs), 0, 255));
   end;
 
-  { TDemoWindow }
-  constructor TDemoWindow.Init(Bounds: TRect; WinTitle: string; WindowNo: integer);
+  { TCanvasWindow }
+  constructor TCanvasWindow.Init(Bounds: TRect; WinTitle: string; WindowNo: integer);
   var
     S: string[3];
   begin
@@ -114,7 +105,7 @@ type
     ClearCanvas;
   end;
 
-  procedure TDemoWindow.Draw;
+  procedure TCanvasWindow.Draw;
   begin
     TWindow.Draw;
 
@@ -125,15 +116,15 @@ type
     // DrawDebugInfo;
   end;
 
-  function TDemoWindow.GetPalette: PPalette;
+  function TCanvasWindow.GetPalette: PPalette;
   const
-    CDemoWindow = #9#8#10#11#12#13#14#15;
-    P: string[Length(CDemoWindow)] = CDemoWindow;
+    CCanvasWindow = #9#8#10#11#12#13#14#15;
+    P: string[Length(CCanvasWindow)] = CCanvasWindow;
   begin
     GetPalette := @P;
   end;  
 
-  procedure TDemoWindow.DrawDebugInfo;
+  procedure TCanvasWindow.DrawDebugInfo;
   var
     S: string[5];
   begin
@@ -155,7 +146,7 @@ type
     WriteStr(1, 4, S, $01);
   end;
 
-  procedure TDemoWindow.UpdateCanvas;
+  procedure TCanvasWindow.UpdateCanvas;
   var
     Pos, OffsetPos: TPoint;
     OffsetX, OffsetY: integer;
@@ -187,7 +178,7 @@ type
           end
   end;
 
-  function TDemoWindow.UpdateLabel: Boolean;
+  function TCanvasWindow.UpdateLabel: Boolean;
   var
     temp: PChar;
   begin
@@ -203,14 +194,14 @@ type
     end;
   end;
 
-  procedure TDemoWindow.StartComputing;
+  procedure TCanvasWindow.StartComputing;
   begin
     if LocalFuture <> Nil then ThrowAwayPrediction(LocalFuture);
-    LocalFuture := StartPrediction(PMyApp(Application)^.MyPredictor, @Canvas[0, 0]);
+    LocalFuture := StartPrediction(PPredictorApp(Application)^.MyPredictor, @Canvas[0, 0]);
     PredictedLabel := '...';
   end;
 
-  procedure TDemoWindow.ClearCanvas;
+  procedure TCanvasWindow.ClearCanvas;
   var
     X, Y: integer;
   begin
@@ -219,7 +210,7 @@ type
         Canvas[Y, X] := 0;
   end;
 
-  procedure TDemoWindow.DrawCanvas;
+  procedure TCanvasWindow.DrawCanvas;
   const
     levels: array[0..4] of byte = (0, 113, 176, 227, 255);
     BlockChars: array[0..4] of char = (' ', char($b0), char($b1), char($b2), char($db));
@@ -236,21 +227,21 @@ type
           end;
   end;
 
-  procedure TDemoWindow.RegisterPresses(var Event: TEvent);
+  procedure TCanvasWindow.RegisterPresses(var Event: TEvent);
   begin
     LeftButtonPressed  := Event.Buttons and mbLeftButton <> 0;
     RightButtonPressed := Event.Buttons and mbRightButton <> 0;
     ClearEvent(Event);
   end;
 
-  procedure TDemoWindow.RegisterMove(var Event: TEvent);
+  procedure TCanvasWindow.RegisterMove(var Event: TEvent);
   begin
     MakeLocal(Event.Where, MouseLocalPos);
     MouseLocalPos.X := MouseLocalPos.X div 2 - 1;
     MouseLocalPos.Y := MouseLocalPos.Y - 1;
   end;
 
-  procedure TDemoWindow.HandleEvent(var Event: TEvent);
+  procedure TCanvasWindow.HandleEvent(var Event: TEvent);
   begin
     TWindow.HandleEvent(Event);
     case Event.What of
@@ -286,7 +277,7 @@ type
     end;
   end;
 
-  procedure TDemoWindow.SetState(AState: word; Enable: boolean);
+  procedure TCanvasWindow.SetState(AState: word; Enable: boolean);
   begin
     TWindow.SetState(AState, Enable);
     if AState = sfSelected then
@@ -296,27 +287,27 @@ type
         DisableCommands(CanvasCommands);
   end;
 
-  { TMyApp }
-  constructor TMyApp.Init;
+  { TPredictorApp }
+  constructor TPredictorApp.Init;
   begin
     TApplication.Init;
     WinCount := 0;
     MyPredictor := InitializePredictor;
   end;
 
-  destructor TMyApp.Done;
+  destructor TPredictorApp.Done;
   begin
     FinalizePredictor(MyPredictor);
     TApplication.Done;
   end;
   
-  procedure TMyApp.Idle; 
+  procedure TPredictorApp.Idle; 
     procedure UpdateLabelForCanvas(P: PView);
     var
-      PCW: PDemoWindow;
+      PCW: PCanvasWindow;
     begin
-      if TypeOf(P^) = TypeOf(TDemoWindow) then begin
-        PCW := PDemoWindow(P);
+      if TypeOf(P^) = TypeOf(TCanvasWindow) then begin
+        PCW := PCanvasWindow(P);
         if PCW^.UpdateLabel then
           PCW^.DrawView;
       end;
@@ -325,7 +316,7 @@ type
     DeskTop^.ForEach(@UpdateLabelForCanvas);
   end;
 
-  procedure TMyApp.HandleEvent(var Event: TEvent);
+  procedure TPredictorApp.HandleEvent(var Event: TEvent);
   begin
     TApplication.HandleEvent(Event);
 
@@ -340,7 +331,7 @@ type
     end;
   end;
 
-  procedure TMyApp.InitMenuBar;
+  procedure TPredictorApp.InitMenuBar;
   var
     R: TRect;
   begin
@@ -356,7 +347,7 @@ type
       NewItem('~Z~oom', 'F5', kbF5, cmZoom, hcNoContext, nil))), nil)))));
   end;
 
-  procedure TMyApp.InitStatusLine;
+  procedure TPredictorApp.InitStatusLine;
   var
     R: TRect;
   begin
@@ -371,19 +362,19 @@ type
     DisableCommands(CanvasCommands);
   end;
 
-  procedure TMyApp.NewWindow;
+  procedure TPredictorApp.NewWindow;
   var
-    Window: PDemoWindow;
+    Window: PCanvasWindow;
     R: TRect;
   begin
     Inc(WinCount);
     R.Assign(0, 0, MnistImageShapeX * 2 + 2, MnistImageShapeY + 2);
     R.Move(WinCount, WinCount);
-    Window := New(PDemoWindow, Init(R, 'Demo Window', WinCount));
+    Window := New(PCanvasWindow, Init(R, 'Canvas', WinCount));
     DeskTop^.Insert(Window);
   end;
 
-  function TMyApp.GetPalette: PPalette;
+  function TPredictorApp.GetPalette: PPalette;
   const
     P: string[Length(CMonochrome)] = CBlackWhite;
   begin
@@ -393,10 +384,10 @@ type
 
 
 var
-  MyApp: TMyApp;
+  PredictorApp: TPredictorApp;
 
 begin
-  MyApp.Init;
-  MyApp.Run;
-  MyApp.Done;
+  PredictorApp.Init;
+  PredictorApp.Run;
+  PredictorApp.Done;
 end.
