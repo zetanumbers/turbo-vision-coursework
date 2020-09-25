@@ -37,9 +37,13 @@ const
      (255, 255, 255, 255), 
      (96 , 255, 255, 96 ));
 type
+  PMyApp = ^TMyApp;
   TMyApp = object(TApplication)
     WinCount: integer;
+    MyPredictor: PPredictor;
     constructor Init;
+    destructor Done; virtual;
+    procedure Idle; virtual;
     procedure HandleEvent(var Event: TEvent); virtual;
     procedure InitMenuBar; virtual;
     procedure InitStatusLine; virtual;
@@ -50,6 +54,7 @@ type
   PDemoWindow = ^TDemoWindow;
 
   TDemoWindow = object(TWindow)
+    LocalFuture: PFuturePrediction;
     LeftButtonPressed, RightButtonPressed: boolean;
     MouseLocalPos: TPoint;
     Canvas: array[0..MnistImageShapeY - 1, 0..MnistImageShapeX - 1] of byte;
@@ -61,7 +66,8 @@ type
     procedure DrawCanvas;
     procedure ClearCanvas;
     procedure UpdateCanvas;
-    procedure UpdateLabel;
+    function UpdateLabel: Boolean;
+    procedure StartComputing;
     procedure RegisterPresses(var Event: TEvent);
     procedure RegisterMove(var Event: TEvent);
     procedure SetState(AState: word; Enable: boolean); virtual;
@@ -101,9 +107,10 @@ type
     Str(WindowNo, S);
     TWindow.Init(Bounds, WinTitle + ' ' + S, wnNoNumber);
 
+    LocalFuture := Nil;
     LeftButtonPressed := False;
     RightButtonPressed := False;
-    PredictedLabel := '...';
+    PredictedLabel := 'Draw a digit';
     ClearCanvas;
   end;
 
@@ -111,6 +118,7 @@ type
   begin
     TWindow.Draw;
 
+    UpdateLabel;
     WriteStr(5, 0, PredictedLabel, $01);
 
     DrawCanvas;
@@ -179,9 +187,27 @@ type
           end
   end;
 
-  procedure TDemoWindow.UpdateLabel;
+  function TDemoWindow.UpdateLabel: Boolean;
+  var
+    temp: PChar;
   begin
-    PredictedLabel := StrPas(MnistPredict(@Canvas[0, 0]));
+    UpdateLabel := False;
+    if LocalFuture <> Nil then begin
+      temp := TryGetPredictionResult(LocalFuture);
+      if temp <> Nil then begin
+        PredictedLabel := StrPas(temp);
+        RecycleResultMessage(temp);
+        LocalFuture := Nil;
+        UpdateLabel := True;
+      end;
+    end;
+  end;
+
+  procedure TDemoWindow.StartComputing;
+  begin
+    if LocalFuture <> Nil then ThrowAwayPrediction(LocalFuture);
+    LocalFuture := StartPrediction(PMyApp(Application)^.MyPredictor, @Canvas[0, 0]);
+    PredictedLabel := '...';
   end;
 
   procedure TDemoWindow.ClearCanvas;
@@ -236,7 +262,7 @@ type
       end;
       evMouseUp: begin
         RegisterPresses(Event);
-        UpdateLabel;
+        StartComputing;
         DrawView;
         ClearEvent(Event);
       end;
@@ -275,6 +301,28 @@ type
   begin
     TApplication.Init;
     WinCount := 0;
+    MyPredictor := InitializePredictor;
+  end;
+
+  destructor TMyApp.Done;
+  begin
+    FinalizePredictor(MyPredictor);
+    TApplication.Done;
+  end;
+  
+  procedure TMyApp.Idle; 
+    procedure UpdateLabelForCanvas(P: PView);
+    var
+      PCW: PDemoWindow;
+    begin
+      if TypeOf(P^) = TypeOf(TDemoWindow) then begin
+        PCW := PDemoWindow(P);
+        if PCW^.UpdateLabel then
+          PCW^.DrawView;
+      end;
+    end;
+  begin
+    DeskTop^.ForEach(@UpdateLabelForCanvas);
   end;
 
   procedure TMyApp.HandleEvent(var Event: TEvent);

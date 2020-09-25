@@ -9,3 +9,4 @@ name = "mnist_predictor"
 crate-type = ["cdylib"]
 
 [dependencies]
+tokio = { version = "0.2", features = ["tcp", "rt-core", "rt-threaded", "io-util", "fs", "sync"] }

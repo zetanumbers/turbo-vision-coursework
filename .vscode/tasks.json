@@ -10,6 +10,7 @@
                     "-D",
                     "-c",
                     "-S",
+                    "-p",
                     "-l",
                     "${fileBasenameNoExtension}.so",
                     "${file}"
@@ -20,6 +21,7 @@
                     "-D",
                     "-c",
                     "-S",
+                    "-p",
                     "-l",
                     "${fileBasenameNoExtension}.dll",
                     "${file}"
@@ -31,7 +33,20 @@
             "label": "build app",
             "type": "shell",
             "command": "./build",
-            "problemMatcher": [],
+            "problemMatcher": [
+                "$rustc",
+                {
+                    "pattern": [
+                        {
+                            "regexp": "^(.*?)\\((\\d+,\\d+)\\) (Note|Warning|Error|Fatal):(.*)$",
+                            "file": 1,
+                            "location": 2,
+                            "severity": 3,
+                            "message": 4
+                        }
+                    ]
+                }
+            ],
             "group": {
                 "kind": "build",
                 "isDefault": true
