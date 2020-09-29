@@ -51,6 +51,7 @@ type
     Canvas: array[0..MnistImageShapeY - 1, 0..MnistImageShapeX - 1] of byte;
     PredictedLabel: shortstring;
     constructor Init(Bounds: TRect; WinTitle: string; WindowNo: integer);
+    destructor Done; virtual;
     procedure HandleEvent(var Event: TEvent); virtual;
     procedure Draw; virtual;
     procedure DrawDebugInfo;
@@ -103,6 +104,12 @@ type
     RightButtonPressed := False;
     PredictedLabel := 'Draw a digit';
     ClearCanvas;
+  end;
+
+  destructor TCanvasWindow.Done;
+  begin
+    if LocalFuture <> Nil then
+      ThrowAwayPrediction(LocalFuture);
   end;
 
   procedure TCanvasWindow.Draw;
