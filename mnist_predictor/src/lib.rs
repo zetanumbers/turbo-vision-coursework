@@ -27,7 +27,9 @@ fn to_cstring(s: String) -> CString {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn TryGetPredictionResult(futr: *mut FuturePrediction) -> *mut raw::c_char {
+pub unsafe extern "cdecl" fn TryGetPredictionResult(
+    futr: *mut FuturePrediction,
+) -> *mut raw::c_char {
     match (*futr).receiver.try_recv() {
         Ok(s) => {
             Box::from_raw(futr);
@@ -39,12 +41,12 @@ pub unsafe extern "C" fn TryGetPredictionResult(futr: *mut FuturePrediction) -> 
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn RecycleResultMessage(s: *mut raw::c_char) {
+pub unsafe extern "cdecl" fn RecycleResultMessage(s: *mut raw::c_char) {
     CString::from_raw(s);
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn InitializePredictor() -> *mut Predictor {
+pub unsafe extern "cdecl" fn InitializePredictor() -> *mut Predictor {
     let mut builder = Builder::new();
     builder
         .threaded_scheduler()
@@ -60,7 +62,7 @@ pub unsafe extern "C" fn InitializePredictor() -> *mut Predictor {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn FinalizePredictor(p: *mut Predictor) {
+pub unsafe extern "cdecl" fn FinalizePredictor(p: *mut Predictor) {
     Box::from_raw(p);
 }
 
@@ -88,7 +90,7 @@ async fn predict_formated(image: &[u8], tx: oneshot::Sender<CString>) {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn StartPrediction(
+pub unsafe extern "cdecl" fn StartPrediction(
     state: *mut Predictor,
     image: *const u8,
 ) -> *mut FuturePrediction {
@@ -100,12 +102,12 @@ pub unsafe extern "C" fn StartPrediction(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn ThrowAwayPrediction(futr: *mut FuturePrediction) {
+pub unsafe extern "cdecl" fn ThrowAwayPrediction(futr: *mut FuturePrediction) {
     Box::from_raw(futr);
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn BlockingPredict(
+pub unsafe extern "cdecl" fn BlockingPredict(
     state: *mut Predictor,
     image: *const u8,
 ) -> *mut raw::c_char {
