@@ -110,6 +110,7 @@ type
   begin
     if LocalFuture <> Nil then
       ThrowAwayPrediction(LocalFuture);
+    TWindow.Done;
   end;
 
   procedure TCanvasWindow.Draw;
@@ -318,6 +319,7 @@ type
         if PCW^.UpdateLabel then
           PCW^.DrawView;
       end;
+      TApplication.Idle;
     end;
   begin
     DeskTop^.ForEach(@UpdateLabelForCanvas);
